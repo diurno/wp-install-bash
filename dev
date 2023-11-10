@@ -1,0 +1,91 @@
+#!/bin/bash
+
+echo "THIS IS THE WORDPRESS INSTALLER (wp-cli based)"
+read -p "# PROJECT TITLE: " PROJECT_NAME
+
+read -p "# ENTER ADMIN USER: " ADMIN_USER
+
+read -p "# ENTER ADMIN PASSWORD: " ADMIN_PASSWORD
+
+read -p "# ENTER ADMIN EMAIL: " ADMIN_EMAIL
+
+#read -p "# DB PASSWORD: " DB_PASS
+
+
+# Define variables
+#PROJECT_NAME="wpfede4"
+DB_NAME=${PROJECT_NAME}
+DB_USER="root"
+DB_PASS="root"
+DB_HOST="localhost"
+WP_DIR="/Applications/MAMP/htdocs/${PROJECT_NAME}"
+SITE_URL="http://localhost:8888/${PROJECT_NAME}"
+SITE_TITLE="WP New"
+#ADMIN_USER="demo"
+#ADMIN_PASSWORD="root"
+#ADMIN_EMAIL="j@mail.com"
+
+
+#echo "${variablename} Bash_Is_Awesome"
+
+echo "dir $WP_DIR";
+
+echo "usr $ADMIN_USER";
+
+echo "pwd $ADMIN_PASSWORD";
+
+echo "email $ADMIN_EMAIL";
+
+
+# Download WordPress
+wp core download --path="$WP_DIR"
+
+# Create the wp-config.php file
+wp config create --dbname="$DB_NAME" --dbuser="$DB_USER" --dbpass="$DB_PASS" --dbhost="$DB_HOST" --path="$WP_DIR"
+
+# Set debugging to true
+wp config set WP_DEBUG true --raw --path="$WP_DIR"
+
+# Create the database
+wp db create --path="$WP_DIR"
+
+# Install WordPress
+wp core install --url="$SITE_URL" --title="$SITE_TITLE" --admin_user="$ADMIN_USER" --admin_password="$ADMIN_PASSWORD" --admin_email="$ADMIN_EMAIL" --path="$WP_DIR"
+
+#install theme
+wp theme install astra --path="$WP_DIR"
+
+#create child theme
+wp scaffold child-theme astra-child --parent_theme=astra --path="$WP_DIR" --activate
+
+
+# Install plugins
+
+wp plugin install ultimate-addons-for-gutenberg --path="$WP_DIR" --activate 
+#wp plugin install debug-bar debug-bar-actions-and-filters-addon classic-editor default-featured-image plugin-inspector log-deprecated-notices query-monitor theme-check wordpress-beta-tester show-current-template simply-show-hooks theme-inspector view-admin-as --path="$WP_DIR"
+
+# Activate plugins
+#wp plugin activate --all --path="$WP_DIR"
+
+# Delete default plugins
+#wp plugin delete akismet hello --path="$WP_DIR"
+
+# Delete default post and page
+#wp post delete 1 --force --path="$WP_DIR" # deletes the "Hello world!" post
+#wp post delete 2 --force --path="$WP_DIR" # deletes the "Sample Page"
+
+# Generate default content
+#echo -e "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." | wp post generate --post_content --count=20 --path="$WP_DIR"
+
+find ./${PROJECT_NAME} -type d -exec chmod 775 {} \;
+find ./${PROJECT_NAME} -type d -exec chmod g+s {} \;
+find ./${PROJECT_NAME} -type f -exec chmod 664 {} \;
+chown -R apache.505 ./${PROJECT_NAME}
+
+# Set permalink structure
+wp rewrite structure '%postname%' --path="$WP_DIR"
+
+#wp user create JohnDoe john@mail.com --role=subscriber --user_pass=password123 --display_name="John Doe" --path="$WP_DIR"
+#wp user create JaneSmith jane@mail.com --role=subscriber --user_pass=password123 --display_name="Jane Smith" --path="$WP_DIR"
+
+echo "WordPress installed successfully!"
