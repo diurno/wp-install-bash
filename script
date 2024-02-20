@@ -13,7 +13,6 @@ read -p "# ENTER ADMIN EMAIL: " ADMIN_EMAIL
 
 
 # Define variables
-#PROJECT_NAME="wpfede4"
 DB_NAME=${PROJECT_NAME}
 DB_USER="root"
 DB_PASS="root"
